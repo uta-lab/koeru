@@ -6262,7 +6262,11 @@ mod device_transition_tests {
 // `Studio` を組む試験。 MFA を組んでいない OS では `Studio::open` が
 // 設計どおり失敗する（`DEC-ALN-016`）ので、モジュールごと外す——
 // 中の1本だけ外すと `use super::*` が未使用になり、`-D warnings` で落ちる。
-#[cfg(all(test, target_os = "macos", not(koeru_force_unsupported_backend)))]
+#[cfg(all(
+    test,
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 mod tests {
     use super::*;
 
@@ -6275,7 +6279,10 @@ mod tests {
     /// 画面は面を移るたびにここを通る（`queries.ts` の `openProjectQuery` は
     /// `gcTime: 0`）ので、音・曲・テイクを行き来するだけで起きる。**踏んだ。**
     // MFA を組んでいない OS では `Studio::open` が設計どおり失敗する（`DEC-ALN-016`）。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 同じ音源を開き直してもセッションを作り直さない() {
         let root = std::env::temp_dir().join(format!("koeru-reopen-{}", std::process::id()));
@@ -6306,7 +6313,10 @@ mod tests {
     }
 
     /// テイクの名前は付け、変え、消せる。 空白だけの名前は消すのと同じで、既定の表示へ戻る。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn テイクに名前を付け_変え_消せる() {
         let root = std::env::temp_dir().join(format!("koeru-take-label-{}", std::process::id()));
@@ -6371,7 +6381,10 @@ mod tests {
 
     /// 確定のあとの解析が置いた F0 を、`.frq` の格子のまま読める。 解析がまだ置いていない
     /// テイクは値で「無い」と返し、無いテイクは失敗にする。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 確定したテイクの音高の記録を読める() {
         let root = std::env::temp_dir().join(format!("koeru-take-pitch-{}", std::process::id()));
@@ -6431,7 +6444,10 @@ mod tests {
     /// 録り直すたびに直した値が自動の値で上書きされていた。
     ///
     /// 新しいテイクは境界を持たないので、当て直さずに絶対位置のまま写る（`DEC-ALN-019`）。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 録り直しても固定した値を引き継ぐ() {
         let root = std::env::temp_dir().join(format!("koeru-pin-{}", std::process::id()));
@@ -6514,7 +6530,10 @@ mod tests {
     ///
     /// **絶対位置のまま写していた。** 発声が 100ms 遅れただけで、固定した左ブランクが
     /// 新しい録音の無音の中を指した。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 録り直したら固定した左ブランクを発声に合わせる() {
         let root = std::env::temp_dir().join(format!("koeru-reanchor-{}", std::process::id()));
@@ -6637,7 +6656,10 @@ mod tests {
     /// **素の綴りで引いていた。** キューの鍵は（音高, 綴り）なので当たらず、
     /// `review.no_such_entry` を失敗として返していた——直せない違反が1件でも
     /// あると検証そのものが落ち、止めるべきエントリはキューに現れなかった。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 直せない違反はエントリを止める() {
         let root = std::env::temp_dir().join(format!("koeru-block-{}", std::process::id()));
@@ -6685,7 +6707,10 @@ mod tests {
     ///
     /// 計算した oto が、そのまま台帳に載り、画面へ返る値と一致する。
     /// 合成音なので構造しか見ていない（`EVID-ALN-001`）。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 解析は受理で初めて置かれる() {
         use crate::take_analysis::{Step, analyze_take, tests::synthetic_voice};
@@ -6800,7 +6825,10 @@ mod tests {
 
     /// 試唱を止めると、前処理の仕事だけが取り消される。 テイクの解析は止めない
     /// （`TR-SYN-27`。`cancel_lease` ではなく `cancel` を使う理由）。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 試唱を止めると前処理だけが取り消され解析は止まらない() {
         use koeru_runtime::jobs::JobStatus;
@@ -6877,7 +6905,10 @@ mod tests {
 
     /// 受理の直前に作り直した印は、何も変わっていなければ確定のときの印と一致する。
     /// 計算が読んだものが変われば（F0 の条件・行の読み）一致しなくなる。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 読んだ入力の印は変わらなければ一致し変われば外れる() {
         let root = std::env::temp_dir().join(format!("koeru-stamp-{}", std::process::id()));
@@ -7012,7 +7043,11 @@ mod derived_take_tests {
 
 /// 試唱が鳴らす素材と、書き出しが配る素材（`DEC-PLT-052`）。 本物の SQLite の台帳を通す。
 // MFA を組んでいない OS では `Studio::open` が設計どおり失敗する（`DEC-ALN-016`）。
-#[cfg(all(test, target_os = "macos", not(koeru_force_unsupported_backend)))]
+#[cfg(all(
+    test,
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 mod material_tests {
     use super::*;
 
@@ -7241,7 +7276,11 @@ mod material_tests {
 /// マスターの内容の指紋（`DEC-PLT-053`）が、試唱の素材の鍵とジョブの入力の印になる。
 ///
 /// `Studio::open` はアライナを読むので、Kaldi を組んである OS だけで走る。
-#[cfg(all(test, target_os = "macos", not(koeru_force_unsupported_backend)))]
+#[cfg(all(
+    test,
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 mod master_digest_tests {
     use super::*;
 
@@ -7417,7 +7456,11 @@ mod master_digest_tests {
 /// ガイドのテンポ（`TR-REC-23`、`DEC-REC-012`）が、フレーズのガイドとテイクの録音条件に届く。
 ///
 /// `Studio::open` はアライナを読むので、Kaldi を組んである OS だけで走る。
-#[cfg(all(test, target_os = "macos", not(koeru_force_unsupported_backend)))]
+#[cfg(all(
+    test,
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 mod guide_tempo_tests {
     use super::*;
 

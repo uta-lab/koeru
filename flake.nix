@@ -212,6 +212,8 @@
             pkgs.openssl
             pkgs.patchelf
             pkgs.wrapGAppsHook3
+            # Kaldi の BLAS（`koeru-align` の build.rs が `HAVE_OPENBLAS` で引く）。
+            pkgs.openblas
           ];
           ciShellHook = lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
             # 立てないと WebKitGTK が空白のウィンドウを描く。
