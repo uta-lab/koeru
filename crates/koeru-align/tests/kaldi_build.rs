@@ -15,7 +15,10 @@
 // Kaldi を組んでいる OS だけで走らせる。 書いていない OS では
 // `mfa::MfaAligner::open` が常に `Unsupported` を返すので、閉じないと
 // ubuntu と windows の試験が落ちる。 `mfa/mod.rs` と同じ cfg を使う。
-#![cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+#![cfg(all(
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 
 use koeru_align::mfa::{FRAME_SHIFT_MS, MODEL_SAMPLE_RATE_HZ, MfaAligner};
 

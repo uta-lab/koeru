@@ -219,7 +219,10 @@ mod tests {
     ///
     /// submodule は取ってあるのが前提（`setup-koeru`）。 通らない環境は、
     /// まず submodule を取る——**退避で埋めない。**
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn モデルが読めれば札を名乗る() {
         let c = Chosen::detect().expect("submodule を取り込んでいれば読める");
@@ -233,7 +236,10 @@ mod tests {
     ///
     /// `TR-PLT-01` は Windows を第一級の対象としているが、Kaldi の移植が
     /// 終わるまでは動かない。**その衝突を隠さないための試験。**
-    #[cfg(any(not(target_os = "macos"), koeru_force_unsupported_backend))]
+    #[cfg(any(
+        not(any(target_os = "macos", target_os = "linux")),
+        koeru_force_unsupported_backend
+    ))]
     #[test]
     fn 組んでいない_os_では名指しで失敗する() {
         let e = Chosen::detect().expect_err("この OS には Kaldi を組んでいない");
@@ -242,7 +248,10 @@ mod tests {
 
     /// 組んでいない OS では、使えないと値で言う。 理由は起動で上がる失敗と同じ code と分類
     /// （`DEC-PLT-038`）。 モデルが置いてあっても、OS の理由が先に立つ。
-    #[cfg(any(not(target_os = "macos"), koeru_force_unsupported_backend))]
+    #[cfg(any(
+        not(any(target_os = "macos", target_os = "linux")),
+        koeru_force_unsupported_backend
+    ))]
     #[test]
     fn 組んでいない_os_では使えないと値で言う() {
         assert_eq!(
@@ -256,7 +265,10 @@ mod tests {
     }
 
     /// Kaldi を組んである OS では、モデルが置いてあれば使えると値で言う。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 組んである_os_では使えると値で言う() {
         assert_eq!(availability(), Availability::Available);
