@@ -21,7 +21,7 @@ const Lane = ({ view: initialView, selected: initialSelected, onToggle, ...rest 
       view={view}
       onViewChange={(next) => {
         setView(next);
-        rest.onViewChange(next);
+        rest.onViewChange?.(next);
       }}
       selected={selected}
       onToggle={(midi) => {
@@ -225,5 +225,16 @@ export const 層を重ねる: Story = {
     const black = keySpan(61, [C3, C6]);
     await expect(black.left + black.width / 2).toBeCloseTo(8 / 22);
     await expect(black.width).toBeLessThan(width);
+  },
+};
+
+/** 送りを外に置くとき（S02）。 鍵盤だけになり、Tab はすぐ鍵へ入る。 */
+export const 送りなし: Story = {
+  args: { shiftButtons: false },
+  play: async ({ canvasElement }) => {
+    const c = within(canvasElement);
+    await expect(c.queryByRole("button", { name: /を左へ送る/ })).toBeNull();
+    await userEvent.tab();
+    await expect(c.getByRole("button", { name: "C3 を足す" })).toHaveFocus();
   },
 };

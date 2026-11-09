@@ -88,6 +88,9 @@ type ButtonProps = ComponentProps<"button"> &
  * 差し込めるようにすると、`TR-PLT-31` の操作対象の大きさを呼び出し側が壊せる。
  * 何を通すかは `shadcn/no-restyle` の contract が持つ（`vite.config.ts`）。
  *
+ * 押せないことを言いつつ焦点は残したいとき（横に理由を置くとき）は `aria-disabled`。
+ * 見た目は `disabled` と同じにする。 押されたときに何もしないのは呼ぶ側が守る。
+ *
  * 色の遷移を持たない。 道具側は動かない（`docs/reports/ux/direction.md`）ので、
  * hover も即座に切り替わる。
  */
@@ -96,7 +99,7 @@ export const Button = ({ variant, size, asChild = false, className, ...props }: 
   return (
     <Comp
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg disabled:pointer-events-none disabled:opacity-45",
+        "inline-flex items-center justify-center gap-2 rounded-lg disabled:pointer-events-none disabled:opacity-45 aria-disabled:pointer-events-none aria-disabled:opacity-45",
         button({ variant, size }),
         className,
       )}
