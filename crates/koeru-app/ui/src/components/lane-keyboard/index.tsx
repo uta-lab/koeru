@@ -4,7 +4,7 @@ import { Button } from "~/components/button";
 import { isBlackKey, toneName } from "~/lib/tones";
 import { tv } from "~/lib/tv";
 
-import { type ToneSpan, snapSpan } from "./geometry";
+import { type ToneSpan, canShift, shiftSpan, snapSpan } from "./geometry";
 
 type LaneKeyboardProps = {
   /** レーンの名前（「Normal CVVC」など）。 鍵盤と送りのボタンの名前になる。 */
@@ -13,8 +13,11 @@ type LaneKeyboardProps = {
   range: ToneSpan;
   /** 見えている窓。 両端を含む MIDI 番号。 両端は白鍵へ揃えて描く。 */
   view: ToneSpan;
-  /** 左右のボタンで窓を送ったとき。 幅は変えず、1オクターブずつ動く。 */
-  onViewChange: (view: ToneSpan) => void;
+  /**
+   * 左右のボタンで窓を送ったとき。 幅は変えず、1オクターブずつ動く。
+   * 送りのボタンを置かない（`shiftButtons={false}`）なら呼ばれないので、渡さなくてよい。
+   */
+  onViewChange?: (view: ToneSpan) => void;
   /** 選んでいる音階（MIDI）。 */
   selected: readonly number[];
   /** 録り始めている音階。 下線を引く。 `selected` の部分集合。 */
@@ -28,6 +31,12 @@ type LaneKeyboardProps = {
    * 層は鍵盤と同じ大きさで、既定では押しを通す。 押せるものは置く側が戻す。
    */
   overlay?: ReactNode;
+  /**
+   * 左右の送りのボタンを置くか。 窓を共有するレーンを縦に並べるとき（S02）は、
+   * 送りを外に1組だけ置いて `false` にする。 レーンごとに置くと、同じ操作が
+   * 行の数だけ Tab に並ぶ。
+   */
+  shiftButtons?: boolean;
 };
 
 /*
@@ -113,12 +122,12 @@ export const LaneKeyboard = ({
   locked = [],
   onToggle,
   overlay,
+  shiftButtons = true,
 }: LaneKeyboardProps) => {
   const toolbar = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<number | null>(null);
 
   const [from, to] = snapSpan(view);
-  const [rangeFrom, rangeTo] = snapSpan(range);
   const chosen = new Set(selected);
   const made = new Set(created);
   const fixed = new Set(locked);
@@ -156,14 +165,7 @@ export const LaneKeyboard = ({
     focusKey(next);
   };
 
-  const shift = (direction: -1 | 1) => {
-    const width = to - from;
-    const start = Math.min(
-      Math.max(from + direction * 12, rangeFrom),
-      Math.max(rangeFrom, rangeTo - width),
-    );
-    onViewChange([start, start + width]);
-  };
+  const shift = (direction: -1 | 1) => onViewChange?.(shiftSpan(view, range, direction));
 
   const renderKey = (midi: number) => {
     const black = isBlackKey(midi);
@@ -211,15 +213,17 @@ export const LaneKeyboard = ({
 
   return (
     <div className="flex items-center gap-2">
-      <Button
-        size="icon"
-        variant="ghost"
-        aria-label={`${label} の鍵盤を左へ送る`}
-        disabled={from <= rangeFrom}
-        onClick={() => shift(-1)}
-      >
-        <ArrowIcon direction="left" />
-      </Button>
+      {shiftButtons && (
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label={`${label} の鍵盤を左へ送る`}
+          disabled={!canShift(view, range, -1)}
+          onClick={() => shift(-1)}
+        >
+          <ArrowIcon direction="left" />
+        </Button>
+      )}
       <div className="relative min-w-0 flex-1">
         <div
           ref={toolbar}
@@ -238,15 +242,17 @@ export const LaneKeyboard = ({
           <div className="pointer-events-none absolute inset-0 z-30">{overlay}</div>
         )}
       </div>
-      <Button
-        size="icon"
-        variant="ghost"
-        aria-label={`${label} の鍵盤を右へ送る`}
-        disabled={to >= rangeTo}
-        onClick={() => shift(1)}
-      >
-        <ArrowIcon direction="right" />
-      </Button>
+      {shiftButtons && (
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label={`${label} の鍵盤を右へ送る`}
+          disabled={!canShift(view, range, 1)}
+          onClick={() => shift(1)}
+        >
+          <ArrowIcon direction="right" />
+        </Button>
+      )}
     </div>
   );
 };

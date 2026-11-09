@@ -21,6 +21,29 @@ export const snapSpan = ([from, to]: ToneSpan): ToneSpan => [
 ];
 
 /**
+ * 窓を1オクターブ送る。 幅は変えず、範囲の端で止める。
+ *
+ * 窓を共有するレーンの外に送りを置くとき（S02）も、鍵盤の中の送りと同じ動きにする。
+ */
+export const shiftSpan = (view: ToneSpan, range: ToneSpan, direction: -1 | 1): ToneSpan => {
+  const [from, to] = snapSpan(view);
+  const [rangeFrom, rangeTo] = snapSpan(range);
+  const width = to - from;
+  const start = Math.min(
+    Math.max(from + direction * 12, rangeFrom),
+    Math.max(rangeFrom, rangeTo - width),
+  );
+  return [start, start + width];
+};
+
+/** 窓がその向きへまだ送れるか。 */
+export const canShift = (view: ToneSpan, range: ToneSpan, direction: -1 | 1): boolean => {
+  const [from, to] = snapSpan(view);
+  const [rangeFrom, rangeTo] = snapSpan(range);
+  return direction < 0 ? from > rangeFrom : to < rangeTo;
+};
+
+/**
  * 窓の中での鍵の位置。 窓の幅を 1 としたときの左端と幅。
  *
  * 担当音域の帯（`#438`）のように、鍵盤の上に重ねるものが同じ座標で描くために出す。

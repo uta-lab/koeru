@@ -24,3 +24,6 @@ export const 説明つき: Story = {
 };
 
 export const 打ってある: Story = { args: { defaultValue: "ミナ" } };
+
+/** 画面の題を兼ねる欄（S02 の音源名）。 */
+export const 大きい: Story = { args: { label: "音源名", size: "lg", defaultValue: "ミナ" } };

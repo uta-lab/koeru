@@ -66,6 +66,11 @@ export const 主: Story = { args: { variant: "primary" } };
 export const 主_hover: Story = { args: { variant: "primary" }, play: hovered };
 export const 主_押せない: Story = { args: { variant: "primary", disabled: true } };
 export const 主_フォーカス: Story = { args: { variant: "primary" }, play: focused };
+/** 押せないが焦点は残す（横に理由を置くとき）。 見た目は `disabled` と同じ。 */
+export const 主_押せない_焦点あり: Story = {
+  args: { variant: "primary", "aria-disabled": true },
+  play: focused,
+};
 
 export const 副: Story = { args: { variant: "secondary" } };
 export const 副_hover: Story = { args: { variant: "secondary" }, play: hovered };

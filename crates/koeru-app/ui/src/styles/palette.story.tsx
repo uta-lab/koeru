@@ -100,6 +100,13 @@ const ROLE_TEXT_ON_SURFACE = [
   { fg: "text-2", bg: "bg-surface-3", label: "text-2 / surface-3" },
   { fg: "text-slate-1", bg: "bg-rec", label: "rec の上の字" },
   { fg: "text-rec", bg: "bg-bg", label: "rec の字 / bg" },
+  /*
+   * 始められない理由（S02）。 ボタンの横は地、重なりの注記は声色の帯の上。
+   * 字は段 12。 段 11（`attention`）は明るい面で 4.5:1 に届かない（地で 4.49:1）。
+   * 段 11 は線と印にだけ使う。
+   */
+  { fg: "text-amber-12", bg: "bg-bg", label: "注意の字 / bg" },
+  { fg: "text-amber-12", bg: "bg-surface-1", label: "注意の字 / surface-1" },
 ] as const;
 
 export const 役割の字と面: Story = {
