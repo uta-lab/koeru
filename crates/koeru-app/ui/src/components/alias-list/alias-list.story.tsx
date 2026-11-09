@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 
+import { voiceStyle } from "~/lib/voice-color";
+
 import { AliasList, type AliasRow } from ".";
 
 const row = (
@@ -38,9 +40,15 @@ const meta = {
     onSelect: fn(),
   },
   decorators: [
-    // 列の幅を想定しておく。 実画面では S08 左ペインがこの枠を与える。
+    // 列の幅と声の色を与える。 実画面では S08 の面がこれをする。
+    // `voiceStyle` を通さないと `bg-voice` と `shadow-voice-edge` が出ない。
     (Story) => (
-      <div className="flex h-120 w-80 flex-col bg-slate-1 p-3">
+      <div
+        className="flex h-120 w-80 flex-col bg-slate-1 p-3"
+        /* 返すのは `--voice-*` だけ。別ファイルの関数なので読めない。 */
+        // oxlint-disable-next-line shadcn/no-inline-styles
+        style={voiceStyle({ hue: 168, chroma: 0.6, lightness: 0.5 })}
+      >
         <Story />
       </div>
     ),
@@ -91,7 +99,8 @@ export const 全部確認済み: Story = {
 export const 検索で0件: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const search = canvas.getByRole("textbox", { name: /エイリアスを探す/ });
+    // `type="search"` は `role="searchbox"` に写される。
+    const search = canvas.getByRole("searchbox", { name: /エイリアスを探す/ });
     await userEvent.type(search, "ぬ");
     // 空のメッセージは表の行ではない（grid の中では role を外してある）。
     await expect(canvas.getByText(/この絞り込みに当たる綴りはありません。/)).toBeInTheDocument();

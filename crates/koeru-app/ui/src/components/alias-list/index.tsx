@@ -1,7 +1,6 @@
 import { type KeyboardEvent, useId, useMemo, useState } from "react";
 
 import { Chip } from "~/components/chip";
-import { Field } from "~/components/field";
 
 /** 綴りの表示状態。 1つの綴りが同じ回で「未読 → 編集済み」のように移る。 */
 export type AliasStatus = "unread" | "confirmed" | "edited";
@@ -32,7 +31,8 @@ type AliasListProps = {
 type Sort = "none" | "asc" | "desc";
 
 /**
- * S08 原音設定の左の列（`TR-ALN-26`、`TR-ALN-30`）。
+ * S08 原音設定の左の列（`TR-ALN-26`、`TR-ALN-30`、ボード
+ * `docs/reports/ux/redesign-canvas/boards/S08-Review.dc.html`）。
  *
  * 検索・未読の絞り込み・確信度の並べ替えを持つ。選んだ綴りは中央の
  * 確認面が扱う（部品の外へ `onSelect` で返す）。
@@ -105,14 +105,41 @@ export const AliasList = ({ aliases, selected, onSelect }: AliasListProps) => {
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <Field
-        id={searchId}
-        label="エイリアスを探す"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="か"
-      />
+    <div className="flex min-h-0 flex-1 flex-col gap-2">
+      {/*
+        検索欄は一覧の頭に貼る。 `Field` の既定は可視ラベル + 本文の段なので、
+        ボードの「アイコン + プレースホルダ」の見た目にならない。 ここだけ
+        名札は `sr-only` で持ち、プレースホルダと虫眼鏡で何の欄かを示す。
+      */}
+      <label
+        htmlFor={searchId}
+        className="flex h-8.5 shrink-0 items-center gap-2 rounded-lg border border-slate-7 bg-slate-2 px-3"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          className="shrink-0 text-slate-11"
+          aria-hidden="true"
+        >
+          <circle cx="9" cy="9" r="5.5" />
+          <path d="m13 13 4 4" />
+        </svg>
+        <span className="sr-only">エイリアスを探す</span>
+        <input
+          id={searchId}
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="エイリアスを探す"
+          autoComplete="off"
+          className="min-w-0 flex-1 select-text bg-transparent text-sm text-slate-12 outline-none placeholder:text-slate-11"
+        />
+      </label>
 
       <div className="flex flex-wrap gap-2">
         <Chip pressed={unreadOnly} onClick={() => setUnreadOnly((v) => !v)}>
@@ -129,16 +156,16 @@ export const AliasList = ({ aliases, selected, onSelect }: AliasListProps) => {
         <div
           role="row"
           aria-rowindex={1}
-          className="flex h-9 shrink-0 items-center gap-2 border-slate-7 border-b px-3 text-xs text-slate-11"
+          className="flex h-7 shrink-0 items-center gap-2 border-slate-7 border-b px-3 text-xs font-semibold"
         >
-          <span role="columnheader" className="flex-1">
+          <span role="columnheader" className="flex-1 text-slate-12">
             エイリアス
           </span>
-          <div role="columnheader" aria-sort={ariaSort}>
+          <div role="columnheader" aria-sort={ariaSort} className="text-slate-11">
             <button
               type="button"
               onClick={cycleSort}
-              className="font-mono text-slate-12 tabular-nums focus-visible:-outline-offset-2"
+              className="font-mono text-slate-11 tabular-nums focus-visible:-outline-offset-2"
             >
               確信度 {sortMark}
             </button>
@@ -173,30 +200,51 @@ export const AliasList = ({ aliases, selected, onSelect }: AliasListProps) => {
                 }}
                 onFocus={() => setFocusKey(row.key)}
                 onKeyDown={(e) => onKeyDown(e, row.key)}
-                className={`flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 focus-visible:-outline-offset-2 ${
-                  sel ? "bg-slate-4 text-slate-12" : "text-slate-12 hover:bg-slate-3"
+                /*
+                  選択中は左に 3px の声色の線。 枠線だと字が 3px ずれるので、
+                  内側の影で描く（`shadow-voice-edge`、`globals.css`）。
+                */
+                className={`flex h-8.5 shrink-0 items-center gap-2.5 rounded-lg px-3 focus-visible:-outline-offset-2 ${
+                  sel
+                    ? "bg-slate-4 text-slate-12 shadow-voice-edge"
+                    : "text-slate-12 hover:bg-slate-3"
                 }`}
               >
-                <span role="gridcell" className="flex min-w-0 flex-1 items-center gap-2">
+                <span role="gridcell" className="flex min-w-0 flex-1 items-center gap-2.5">
                   {row.status === "unread" ? (
                     <>
-                      <span aria-hidden="true" className="text-slate-11">
-                        •
-                      </span>
+                      <span
+                        aria-hidden="true"
+                        /*
+                          未読の印は声の色。 画面全体の「音源ごとに1色」の
+                          約束に乗る（`DEC-PLT-062`）。声が無い音源では
+                          `--voice-fill-*` が未定義で、`bg-voice` は透明になる。
+                        */
+                        className="block size-2 shrink-0 rounded-full bg-voice"
+                      />
                       <span className="sr-only">未読</span>
                     </>
                   ) : (
                     // 点が無いときも幅を取る。 読んでいる綴りの頭が左右に揺れない。
-                    <span aria-hidden="true" className="w-3 shrink-0" />
+                    <span aria-hidden="true" className="w-2 shrink-0" />
                   )}
-                  <span className="select-text truncate text-sm">{row.alias}</span>
+                  {/*
+                    綴りは IBM Plex Mono で描くと縦が揃う。 プロジェクトの
+                    `--font-mono` は `SF Mono` ほかの段なので、ボードに
+                    合わせきれないが近い等幅のスタックになる。
+                  */}
+                  <span className="select-text truncate font-mono text-sm text-slate-12">
+                    {row.alias}
+                  </span>
                 </span>
 
                 <span role="gridcell" className="flex items-center gap-2">
                   {row.status === "edited" && (
-                    <span className="text-xs text-slate-11">編集済み</span>
+                    <span className="rounded-md border border-slate-7 px-1 text-xs text-slate-11">
+                      編集済み
+                    </span>
                   )}
-                  <span className="font-mono text-sm text-slate-12 tabular-nums">
+                  <span className="font-mono text-xs text-slate-11 tabular-nums">
                     {row.confidence.toFixed(2)}
                   </span>
                   {row.status === "edited" && row.originalConfidence !== undefined && (
