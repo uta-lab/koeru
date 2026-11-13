@@ -5,17 +5,17 @@
     "": {
       "name": "@koeru/talks",
       "devDependencies": {
-        "@hajimism/dek": "0.5.1",
-        "@tsconfig/strictest": "2.0.8",
+        "@hajimism/dek": "0.6.4",
+        "@tsconfig/strictest": "2.0.9",
         "playwright": "1.64.1",
         "typescript": "7.0.2",
       },
     },
   },
   "packages": {
-    "@hajimism/dek": ["@hajimism/dek@0.5.1", "", { "dependencies": { "zod": "^4.6.5" }, "bin": { "dekc": "src/cli.ts" } }, "sha512-0vDdwpN+fFddyJrhN5NrW7/QodP69kluj4/jZAMU4ZRCk4FTHa/PxNhpafNDVMcXrc0Fs6B2TvA/WZlQpOGRNw=="],
+    "@hajimism/dek": ["@hajimism/dek@0.6.4", "", { "dependencies": { "zod": "^4.6.5" }, "bin": { "dekc": "src/cli.ts" } }, "sha512-lFEWt7CwGbKj7T7D4fwn4696mxT4SSHylySD0ybEipA2AiYKL5HBx2SIHVqbmOvy9GzGTG2IhYMPRS0++rQdpQ=="],
 
-    "@tsconfig/strictest": ["@tsconfig/strictest@2.0.8", "", {}, "sha512-XnQ7vNz5HRN0r88GYf1J9JJjqtZPiHt2woGJOo2dYqyHGGcd6OLGqSlBB6p1j9mpzja6Oe5BoPqWmeDx6X9rLw=="],
+    "@tsconfig/strictest": ["@tsconfig/strictest@2.0.9", "", {}, "sha512-CbwIySRXoGapLZYXqQHF15cg0wQImJa25Ynmubb7816vnHqTdQrmQlSbZxkJrrBusHLbF1kFbNVn8XtxmQ3EpQ=="],
 
     "@typescript/typescript-aix-ppc64": ["@typescript/typescript-aix-ppc64@7.0.2", "", { "os": "aix", "cpu": "ppc64" }, "sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ=="],
 
