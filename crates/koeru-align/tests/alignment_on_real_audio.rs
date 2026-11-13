@@ -26,7 +26,10 @@
 #![allow(clippy::print_stdout)]
 // バックエンドが書いてある OS だけ。 `koeru_force_unsupported_backend` では
 // `MfaAligner::open` が `ModelUnavailable` を返すので、組み立てから外す。
-#![cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+#![cfg(all(
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 
 mod common;
 

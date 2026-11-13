@@ -24,16 +24,28 @@
 //! cargo の feature にしない。 feature は加算的であるべきで、
 //! `--all-features` で挙動が変わるものを混ぜると macOS の CI がスタブを検査しはじめる。
 
-#[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+#[cfg(all(
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 mod kaldi;
 
-#[cfg(any(not(target_os = "macos"), koeru_force_unsupported_backend))]
+#[cfg(any(
+    not(any(target_os = "macos", target_os = "linux")),
+    koeru_force_unsupported_backend
+))]
 mod unsupported;
 
-#[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+#[cfg(all(
+    any(target_os = "macos", target_os = "linux"),
+    not(koeru_force_unsupported_backend)
+))]
 pub use kaldi::{FRAME_SHIFT_MS, MODEL_SAMPLE_RATE_HZ, MfaAligner, MfaError, availability};
 
-#[cfg(any(not(target_os = "macos"), koeru_force_unsupported_backend))]
+#[cfg(any(
+    not(any(target_os = "macos", target_os = "linux")),
+    koeru_force_unsupported_backend
+))]
 pub use unsupported::{FRAME_SHIFT_MS, MODEL_SAMPLE_RATE_HZ, MfaAligner, MfaError, availability};
 
 /// `meta.json` の中身から、同梱しているモデルの版を読む（`TR-ALN-29`）。

@@ -21,7 +21,8 @@
 //!
 //! # BLAS
 //!
-//! macOS は Accelerate（`HAVE_CLAPACK`）。他 OS はまだ書いていない——
+//! macOS は Accelerate（`HAVE_CLAPACK`）、Linux は OpenBLAS（`HAVE_OPENBLAS`）。
+//! 他 OS はまだ書いていない——
 //! `koeru-audio` と同じく、書いていない OS では素直に落ちるようにしてある。
 
 use std::path::{Path, PathBuf};
@@ -50,7 +51,8 @@ fn main() {
     let forced_unsupported = std::env::var("CARGO_ENCODED_RUSTFLAGS")
         .unwrap_or_default()
         .contains("koeru_force_unsupported_backend");
-    if !cfg!(target_os = "macos") || forced_unsupported {
+    let os = std::env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+    if !matches!(os.as_str(), "macos" | "linux") || forced_unsupported {
         println!("cargo:rerun-if-env-changed=CARGO_ENCODED_RUSTFLAGS");
         return;
     }
@@ -83,10 +85,16 @@ fn main() {
         // 上流自身の分岐に乗る。 これで `<fst/types.h>` の代わりに `<stdint.h>` を使う。
         .define("OPENFST_VER", "10800");
 
-    // Accelerate。`kaldi-blas.h` が `HAVE_CLAPACK` で Accelerate を引く。
-    // 他 OS は上で戻っているので、ここへは来ない。
-    build.define("HAVE_CLAPACK", None);
-    println!("cargo:rustc-link-lib=framework=Accelerate");
+    // `kaldi-blas.h` が `HAVE_CLAPACK` で Accelerate を、`HAVE_OPENBLAS` で OpenBLAS を引く。
+    // 他 OS は上で戻っているので、ここへは来ない。 OpenBLAS の場所は devShell が渡す。
+    if os == "macos" {
+        build.define("HAVE_CLAPACK", None);
+        println!("cargo:rustc-link-lib=framework=Accelerate");
+    } else {
+        // `lapacke.h` は差し替える（`shim/openblas/lapacke.h`）。 `cblas.h` は本物を使う。
+        build.define("HAVE_OPENBLAS", None).include("shim/openblas");
+        println!("cargo:rustc-link-lib=openblas");
+    }
 
     for (module, skip) in MODULES {
         for f in sources(&vendor.join(module), skip) {

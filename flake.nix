@@ -212,10 +212,10 @@
             pkgs.openssl
             pkgs.patchelf
             pkgs.wrapGAppsHook3
+            # Kaldi の BLAS（`koeru-align` の build.rs が `HAVE_OPENBLAS` で引く）。
+            pkgs.openblas
           ];
           ciShellHook = lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
-            # 立てないと WebKitGTK が空白のウィンドウを描く。
-            export WEBKIT_DISABLE_COMPOSITING_MODE=1
             # Wayland で表示倍率を正しく報告させる。
             export XDG_DATA_DIRS="$GSETTINGS_SCHEMAS_PATH:$XDG_DATA_DIRS"
           '';
@@ -267,6 +267,16 @@
                     ];
                   }
                 }
+
+                # NixOS の外では、Nix の WebKitGTK が GPU のドライバ（`/run/opengl-driver`）に届かず、
+                # 合成を切って描く。 そこへ画面の遷移（`document.startViewTransition`）が来ると、
+                # 描画プロセスが abort してウィンドウが白くなる。 合成を切る環境変数を立てても同じ。
+                # 同じ nixpkgs の Mesa を渡して、合成できるようにする。
+                if [ ! -e /run/opengl-driver ]; then
+                  export __EGL_VENDOR_LIBRARY_FILENAMES=${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json
+                  export LIBGL_DRIVERS_PATH=${pkgs.mesa}/lib/dri
+                  export GBM_BACKENDS_PATH=${pkgs.mesa}/lib/gbm
+                fi
               ''}
 
               if [ "$KOERU_PLAYWRIGHT_FROM_PACKAGE_JSON" != "$KOERU_PLAYWRIGHT_FROM_NIXPKGS" ]; then

@@ -1001,7 +1001,10 @@ pub(crate) fn re_estimate(
 pub(crate) mod tests {
     use super::*;
 
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     /// 合成音。 モーラごとに「雑音の子音 + 倍音のある母音」を並べる。 乱数は使わない。
     ///
     /// **構造しか見られない。** 合成音ではアライナの境界が正しい位置に出るかは言えない
@@ -1137,7 +1140,10 @@ pub(crate) mod tests {
         }
     }
 
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     fn input_for(kana: &[&str], samples: Vec<f32>) -> TakeAnalysisInput {
         let rules = Rules::builtin(UnitSet::Core);
         let line: Vec<Unit> = kana
@@ -1188,7 +1194,10 @@ pub(crate) mod tests {
     /// `Studio` も台帳も無しで呼べて、同じ入力から同じ出力になる（`TR-ALN-29`）。
     ///
     /// 構造を見る試験。 境界の位置が正しいかは見ていない。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 同じ入力から同じ出力になる() {
         let input = input_for(&["あ", "か"], synthetic_voice(2, 180.0));
@@ -1210,7 +1219,10 @@ pub(crate) mod tests {
     ///
     /// 何も出ていなければ（境界も oto も空）、指紋が空の入力を畳んだだけになる。
     /// 呼び出し側が `otos` の非空を確かめる。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     fn output_fingerprint(out: &TakeAnalysisOutput) -> (usize, koeru_core::fingerprint::Digest) {
         let mut otos = Vec::new();
         let mut boundaries = Vec::new();
@@ -1235,7 +1247,10 @@ pub(crate) mod tests {
     /// （`TR-ALN-29`）。 実モデルで走る。
     ///
     /// 出力の指紋は永続化しない（`DEC-PLT-053`）。 ここで使うだけ。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 出力の指紋は入力が同じなら同じで_音が変われば変わる() {
         let run = |hz: f64| {
@@ -1251,7 +1266,10 @@ pub(crate) mod tests {
     }
 
     /// 不連続のあるテイクは確認キューへ入れない。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 取りこぼしたテイクはキューへ入れない() {
         let mut input = input_for(&["あ"], synthetic_voice(1, 180.0));
@@ -1264,7 +1282,10 @@ pub(crate) mod tests {
     ///
     /// 規約と綴りの表を読めなければ、何も置かない。 行の読みを読めなければ、解析値は置くが
     /// 計測から先は置かない。 以前は読む場所ごとの `?` がそうしていた。
-    #[cfg(all(target_os = "macos", not(koeru_force_unsupported_backend)))]
+    #[cfg(all(
+        any(target_os = "macos", target_os = "linux"),
+        not(koeru_force_unsupported_backend)
+    ))]
     #[test]
     fn 読めなかった段で止まる() {
         let unreadable = || AppError::from_failure(koeru_core::db::LedgerError::UnknownTake);
